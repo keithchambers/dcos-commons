@@ -80,7 +80,14 @@ public class FrameworkRunner {
             SchedulerUtils.hardExit(ExitCode.DRIVER_EXITED);
         }
 
-        FrameworkScheduler frameworkScheduler = new FrameworkScheduler(schedulerConfig, persister, mesosEventClient);
+        FrameworkStore frameworkStore = new FrameworkStore(persister);
+
+        FrameworkScheduler frameworkScheduler = new FrameworkScheduler(
+                frameworkConfig.getAllResourceRoles(),
+                schedulerConfig,
+                persister,
+                frameworkStore,
+                mesosEventClient);
         ApiServer httpServer = ApiServer.start(schedulerConfig, mesosEventClient.getHTTPEndpoints(), new Runnable() {
             @Override
             public void run() {
@@ -92,7 +99,7 @@ public class FrameworkRunner {
             }
         });
 
-        Protos.FrameworkInfo frameworkInfo = getFrameworkInfo(frameworkScheduler.fetchFrameworkId());
+        Protos.FrameworkInfo frameworkInfo = getFrameworkInfo(frameworkStore.fetchFrameworkId());
         LOGGER.info("Registering framework: {}", TextFormat.shortDebugString(frameworkInfo));
         String zkUri = String.format("zk://%s/mesos", frameworkConfig.getZookeeperHostPort());
         Protos.Status status = new SchedulerDriverFactory()

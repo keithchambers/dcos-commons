@@ -1,8 +1,12 @@
 package com.mesosphere.sdk.framework;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
 import org.apache.mesos.Protos;
 import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
@@ -11,6 +15,7 @@ import org.slf4j.Logger;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.TextFormat;
 import com.mesosphere.sdk.offer.LoggingUtils;
+import com.mesosphere.sdk.offer.ResourceUtils;
 import com.mesosphere.sdk.offer.evaluate.placement.IsLocalRegionRule;
 import com.mesosphere.sdk.scheduler.MesosEventClient;
 import com.mesosphere.sdk.scheduler.Metrics;
@@ -18,7 +23,6 @@ import com.mesosphere.sdk.scheduler.SchedulerConfig;
 import com.mesosphere.sdk.scheduler.SchedulerUtils;
 import com.mesosphere.sdk.scheduler.MesosEventClient.StatusResponse;
 import com.mesosphere.sdk.state.FrameworkStore;
-import com.mesosphere.sdk.state.StateStoreException;
 import com.mesosphere.sdk.storage.Persister;
 
 /**
@@ -41,14 +45,21 @@ public class FrameworkScheduler implements Scheduler {
      */
     private final AtomicBoolean readyToAcceptOffers = new AtomicBoolean(false);
 
+    private final Set<String> frameworkRolesWhitelist;
     private final FrameworkStore frameworkStore;
     private final MesosEventClient mesosEventClient;
     private final OfferProcessor offerProcessor;
     private final ImplicitReconciler implicitReconciler;
 
-    public FrameworkScheduler(SchedulerConfig schedulerConfig, Persister persister, MesosEventClient mesosEventClient) {
+    public FrameworkScheduler(
+            Set<String> frameworkRolesWhitelist,
+            SchedulerConfig schedulerConfig,
+            Persister persister,
+            FrameworkStore frameworkStore,
+            MesosEventClient mesosEventClient) {
         this(
-                new FrameworkStore(persister),
+                frameworkRolesWhitelist,
+                frameworkStore,
                 mesosEventClient,
                 new OfferProcessor(mesosEventClient, persister),
                 new ImplicitReconciler(schedulerConfig));
@@ -56,24 +67,16 @@ public class FrameworkScheduler implements Scheduler {
 
     @VisibleForTesting
     FrameworkScheduler(
+            Set<String> frameworkRolesWhitelist,
             FrameworkStore frameworkStore,
             MesosEventClient mesosEventClient,
             OfferProcessor offerProcessor,
             ImplicitReconciler implicitReconciler) {
+        this.frameworkRolesWhitelist = frameworkRolesWhitelist;
         this.frameworkStore = frameworkStore;
         this.mesosEventClient = mesosEventClient;
         this.offerProcessor = offerProcessor;
         this.implicitReconciler = implicitReconciler;
-    }
-
-    /**
-     * Returns the framework ID currently in persistent storage, or an empty {@link Optional} if no framework ID had
-     * been stored yet.
-     *
-     * @throws StateStoreException if storage access fails
-     */
-    Optional<Protos.FrameworkID> fetchFrameworkId() {
-        return frameworkStore.fetchFrameworkId();
     }
 
     /**
@@ -143,7 +146,52 @@ public class FrameworkScheduler implements Scheduler {
             return;
         }
 
-        offerProcessor.enqueue(offers);
+        // Filter any bad resources from the offers before they even enter processing.
+        offerProcessor.enqueue(offers.stream()
+                .map(offer -> filterBadResources(offer))
+                .collect(Collectors.toList()));
+    }
+
+    /**
+     * Before we forward the offers to the processor queue, lets filter out resources that don't belong to us.
+     * Resources can look like one of the following:
+     * 1. Dynamic against our-role or refined-role/our-role (belongs to us)
+     * 2. Static against refined-role (we can reserve against it)
+     * 3. Dynamic against refined-role (DOESN'T belong to us at all! Likely created by Marathon)
+     * We specifically want to ensure that any resources from case 3 are not visible to our service. They are
+     * effectively a quirk of how Mesos behaves with roles, and ideally we wouldn't see these resources at all.
+     * So what we do here is filter out all the resources which are dynamic AND which lack one of our expected
+     * resource roles. To be extra safe, we also check that any dynamic resources have a resource_id label, which
+     * hints that the resources were indeed created by us.
+     *
+     * @param offer the original offer received by mesos
+     * @return a copy of that offer with any resources which don't belong to us filtered out, or the original offer if
+     *         no changes were needed
+     */
+    private Protos.Offer filterBadResources(Protos.Offer offer) {
+        Collection<Protos.Resource> goodResources = new ArrayList<>();
+        Collection<Protos.Resource> badResources = new ArrayList<>();
+        for (Protos.Resource resource : offer.getResourcesList()) {
+            if (ResourceUtils.isProcessable(resource, frameworkRolesWhitelist)) {
+                goodResources.add(resource);
+            } else {
+                badResources.add(resource);
+            }
+        }
+        if (badResources.isEmpty()) {
+            // All resources are good. Just return the original offer.
+            return offer;
+        }
+
+        // Build a new offer which only contains the good resources. Log the bad resources.
+        LOGGER.info("Filtered {} resources from offer {}:", badResources.size(), offer.getId().getValue());
+        for (Protos.Resource badResource : badResources) {
+            LOGGER.info("  {}", TextFormat.shortDebugString(badResource));
+        }
+        return offer.toBuilder()
+                .clearResources()
+                .addAllResources(goodResources)
+                .build();
     }
 
     @Override
@@ -165,7 +213,7 @@ public class FrameworkScheduler implements Scheduler {
             } else {
                 // Special case: Mesos can send TASK_LOST+REASON_RECONCILIATION as a response to a prior kill request
                 // against an unknown task. When this happens, we don't want to repeat the kill, because that would
-                // result create a Kill -> Status -> Kill -> ... loop
+                // create a Kill -> Status -> Kill -> ... loop
                 LOGGER.warn("Got unknown task in response to status update, but task should not be killed again: {}",
                         status.getTaskId().getValue());
             }

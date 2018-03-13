@@ -2,6 +2,8 @@ package com.mesosphere.sdk.framework;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -152,6 +154,15 @@ public class FrameworkConfig {
     }
 
     /**
+     * Returns the union of the pre-reserved roles and the main role.
+     */
+    public Set<String> getAllResourceRoles() {
+        Set<String> roles = new HashSet<>(preReservedRoles);
+        roles.add(role);
+        return roles;
+    }
+
+    /**
      * Returns the web URL to specify when registering with Mesos.
      */
     public String getWebUrl() {
@@ -222,7 +233,7 @@ public class FrameworkConfig {
     private static Collection<String> getFrameworkPreReservedRoles(
             String frameworkRole, Collection<String> podSpecPreReservedRoles) {
         return podSpecPreReservedRoles.stream()
-                .filter(r -> r.equals(Constants.ANY_ROLE))
+                .filter(r -> !r.equals(Constants.ANY_ROLE))
                 .map(r -> r + "/" + frameworkRole)
                 .collect(Collectors.toList());
     }

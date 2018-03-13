@@ -2,6 +2,7 @@ package com.mesosphere.sdk.testing;
 
 import com.mesosphere.sdk.config.validate.ConfigValidator;
 import com.mesosphere.sdk.dcos.Capabilities;
+import com.mesosphere.sdk.framework.FrameworkConfig;
 import com.mesosphere.sdk.framework.FrameworkScheduler;
 import com.mesosphere.sdk.framework.ReviveManager;
 import com.mesosphere.sdk.framework.TaskKiller;
@@ -15,6 +16,7 @@ import com.mesosphere.sdk.scheduler.recovery.RecoveryPlanOverriderFactory;
 import com.mesosphere.sdk.specification.*;
 import com.mesosphere.sdk.specification.yaml.RawServiceSpec;
 import com.mesosphere.sdk.specification.yaml.TemplateUtils;
+import com.mesosphere.sdk.state.FrameworkStore;
 import com.mesosphere.sdk.storage.MemPersister;
 import com.mesosphere.sdk.storage.Persister;
 import org.apache.mesos.SchedulerDriver;
@@ -326,7 +328,12 @@ public class ServiceTestRunner {
                 .setCustomConfigValidators(validators)
                 .build();
         FrameworkScheduler frameworkScheduler =
-                new FrameworkScheduler(mockSchedulerConfig, persister, serviceScheduler)
+                new FrameworkScheduler(
+                        FrameworkConfig.fromRawServiceSpec(rawServiceSpec).getAllResourceRoles(),
+                        mockSchedulerConfig,
+                        persister,
+                        new FrameworkStore(persister),
+                        serviceScheduler)
                 .setReadyToAcceptOffers()
                 .disableThreading();
 

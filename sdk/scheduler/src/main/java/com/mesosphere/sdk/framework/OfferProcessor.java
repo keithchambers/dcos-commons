@@ -266,6 +266,7 @@ class OfferProcessor {
         // Cluster. To do this we perform all necessary UNRESERVE and/or DESTROY Operations against those resources.
         // Note: We only perform this cleanup for unused offers. Unused reserved resources within used offers will be
         // cleaned when they are offered again in the next offer cycle.
+
         UnexpectedResourcesResponse unexpectedResourcesResponse =
                 mesosEventClient.getUnexpectedResources(unusedOffers);
         Collection<OfferRecommendation> cleanupRecommendations =

@@ -53,7 +53,8 @@ public class DefaultScheduler extends AbstractScheduler {
      * deployment should be organized.
      */
     public static SchedulerBuilder newBuilder(
-            ServiceSpec serviceSpec, SchedulerConfig schedulerConfig) throws PersisterException {
+            ServiceSpec serviceSpec,
+            SchedulerConfig schedulerConfig) throws PersisterException {
         return new SchedulerBuilder(serviceSpec, schedulerConfig);
     }
 
@@ -63,7 +64,9 @@ public class DefaultScheduler extends AbstractScheduler {
      * deployment should be organized.
      */
     public static SchedulerBuilder newBuilder(
-            ServiceSpec serviceSpec, SchedulerConfig schedulerConfig, Persister persister) throws PersisterException {
+            ServiceSpec serviceSpec,
+            SchedulerConfig schedulerConfig,
+            Persister persister) throws PersisterException {
         return new SchedulerBuilder(serviceSpec, schedulerConfig, persister);
     }
 
@@ -380,6 +383,10 @@ public class DefaultScheduler extends AbstractScheduler {
      */
     public UninstallScheduler toUninstallScheduler() {
         return new UninstallScheduler(
-                this.serviceSpec, this.stateStore, this.configStore, this.schedulerConfig, this.planCustomizer);
+                this.serviceSpec,
+                this.stateStore,
+                this.configStore,
+                this.schedulerConfig,
+                this.planCustomizer);
     }
 }

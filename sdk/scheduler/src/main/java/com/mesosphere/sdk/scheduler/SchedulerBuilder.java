@@ -41,6 +41,7 @@ import com.mesosphere.sdk.state.StateStoreUtils;
 import com.mesosphere.sdk.storage.Persister;
 import com.mesosphere.sdk.storage.PersisterCache;
 import com.mesosphere.sdk.storage.PersisterException;
+import org.apache.mesos.Protos;
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -53,6 +54,7 @@ import java.util.stream.Collectors;
 public class SchedulerBuilder {
 
     private final Logger logger;
+
     private final SchedulerConfig schedulerConfig;
     private final Persister persister;
     private ServiceSpec serviceSpec;
@@ -212,7 +214,11 @@ public class SchedulerBuilder {
             // FRAMEWORK UNINSTALL: The scheduler and all its service(s) are being uninstalled. Launch this service in
             // uninstall mode. UninstallScheduler will internally flag the stateStore with an uninstall bit if needed.
             return new UninstallScheduler(
-                    serviceSpec, stateStore, configStore, schedulerConfig, Optional.ofNullable(planCustomizer));
+                    serviceSpec,
+                    stateStore,
+                    configStore,
+                    schedulerConfig,
+                    Optional.ofNullable(planCustomizer));
         }
 
         if (StateStoreUtils.isUninstalling(stateStore)) {
@@ -221,7 +227,11 @@ public class SchedulerBuilder {
                 // This namespaced service is partway through being removed from the parent multi-service scheduler.
                 // Launch the service in uninstall mode so that it can continue with whatever may be left.
                 return new UninstallScheduler(
-                        serviceSpec, stateStore, configStore, schedulerConfig, Optional.ofNullable(planCustomizer));
+                        serviceSpec,
+                        stateStore,
+                        configStore,
+                        schedulerConfig,
+                        Optional.ofNullable(planCustomizer));
             } else {
                 // This is an illegal state for a single-service scheduler. SchedulerConfig's uninstall bit should have
                 // also been enabled. If we got here, it means that the user likely tampered with the scheduler env
@@ -249,8 +259,9 @@ public class SchedulerBuilder {
      * @throws IllegalArgumentException if config validation failed when updating the target config.
      */
     private DefaultScheduler getDefaultScheduler(
-            FrameworkStore frameworkStore, StateStore stateStore, ConfigStore<ServiceSpec> configStore)
-            throws ConfigStoreException {
+            FrameworkStore frameworkStore,
+            StateStore stateStore,
+            ConfigStore<ServiceSpec> configStore) throws ConfigStoreException {
 
         // Determine whether deployment had previously completed BEFORE we update the config.
         // Plans may be generated from the config content.
@@ -573,4 +584,23 @@ public class SchedulerBuilder {
             throw new IllegalStateException(e);
         }
     }
+
+    @SuppressWarnings("deprecation") // mute warning for FrameworkInfo.setRole()
+    private static void setRoles(Protos.FrameworkInfo.Builder fwkInfoBuilder, ServiceSpec serviceSpec) {
+        List<String> preReservedRoles =
+                serviceSpec.getPods().stream()
+                        .filter(podSpec -> !podSpec.getPreReservedRole().equals(Constants.ANY_ROLE))
+                        .map(podSpec -> podSpec.getPreReservedRole() + "/" + serviceSpec.getRole())
+                        .collect(Collectors.toList());
+        if (preReservedRoles.isEmpty()) {
+            fwkInfoBuilder.setRole(serviceSpec.getRole());
+        } else {
+            fwkInfoBuilder.addCapabilities(Protos.FrameworkInfo.Capability.newBuilder()
+                    .setType(Protos.FrameworkInfo.Capability.Type.MULTI_ROLE));
+            fwkInfoBuilder.addRoles(serviceSpec.getRole());
+            fwkInfoBuilder.addAllRoles(preReservedRoles);
+        }
+    }
+
+
 }

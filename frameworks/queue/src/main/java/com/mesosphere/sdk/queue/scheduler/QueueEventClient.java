@@ -217,12 +217,12 @@ public class QueueEventClient implements MesosEventClient {
                 // which point we can set our deploy plan to complete.
                 return OfferResponse.uninstalled();
             } else {
-                // No: We're just not actively running anything. Decline short until we have runs.
-                return OfferResponse.notReady(recommendations);
+                // No: We're just not actively running anything. Long decline until we have runs.
+                return OfferResponse.processed(recommendations);
             }
         } else if (anyClientsNotReady) {
-            // One or more clients said they weren't ready, or we don't have any clients. Tell upstream to short-decline
-            // the unused offers, but still perform any operations returned by the ready clients.
+            // One or more clients said they weren't ready. Tell upstream to short-decline the unused offers, but still
+            // perform any operations returned by the ready clients.
             return OfferResponse.notReady(recommendations);
         } else {
             // We have one or more clients and they were all able to process offers, so tell upstream to long-decline.

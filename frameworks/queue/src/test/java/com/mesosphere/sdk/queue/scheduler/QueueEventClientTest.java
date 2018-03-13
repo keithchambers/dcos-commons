@@ -142,15 +142,15 @@ public class QueueEventClientTest {
     }
 
     @Test
-    public void offerNoClients() {
+    public void offerNoClientsDeclineLong() {
         // No offers
         OfferResponse response = client.offers(Collections.emptyList());
-        Assert.assertEquals(OfferResponse.Result.NOT_READY, response.result);
+        Assert.assertEquals(OfferResponse.Result.PROCESSED, response.result);
         Assert.assertTrue(response.recommendations.isEmpty());
 
         // Some offers
         response = client.offers(Arrays.asList(getOffer(1), getOffer(2), getOffer(3)));
-        Assert.assertEquals(OfferResponse.Result.NOT_READY, response.result);
+        Assert.assertEquals(OfferResponse.Result.PROCESSED, response.result);
         Assert.assertTrue(response.recommendations.isEmpty());
     }
 
@@ -169,9 +169,9 @@ public class QueueEventClientTest {
         // tell queue that this was the last client:
         when(mockRunManager.removeRuns(any())).thenReturn(0);
 
-        // schedulerConfig is not uninstalling, so we're just NOT_READY:
+        // schedulerConfig is not uninstalling, so we're just PROCESSED (decline long):
         OfferResponse response = client.offers(Collections.emptyList());
-        Assert.assertEquals(OfferResponse.Result.NOT_READY, response.result);
+        Assert.assertEquals(OfferResponse.Result.PROCESSED, response.result);
         Assert.assertTrue(response.recommendations.isEmpty());
 
         verify(mockRunManager).removeRuns(Collections.singletonList("1"));

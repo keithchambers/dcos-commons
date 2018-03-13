@@ -129,6 +129,51 @@ public class ResourceUtils {
         return Optional.of(resource.getDisk().getSource().getMount().getRoot());
     }
 
+    /**
+     * Filter resources which are dynamically reserved against a role which isn't ours.
+     *
+     * @param resource the resource to be examined
+     * @param ourRoles the expected roles used by this framework, see also
+     *                 {@link #getReservationRoles(org.apache.mesos.Protos.FrameworkInfo)}
+     * @return whether this resource should be processed by our framework. if false then this resource should be ignored
+     */
+    public static boolean isProcessable(Protos.Resource resource, Collection<String> ourRoles) {
+        // If there are no dynamic reservations, then it's fine.
+        if (getDynamicReservations(resource).isEmpty()) {
+            return true;
+        }
+
+        // The resource is dynamically reserved, but does the reservation appear to be one of ours?
+        return hasResourceId(resource) && ourRoles.containsAll(getReservationRoles(resource));
+    }
+
+    /**
+     * Returns the roles used to reserve this resource.
+     */
+    @SuppressWarnings("deprecation")
+    private static Set<String> getReservationRoles(Protos.Resource resource) {
+        Set<String> roles = new HashSet<>(getDynamicReservations(resource).stream()
+                .map(Protos.Resource.ReservationInfo::getRole)
+                .collect(Collectors.toList()));
+        if (resource.hasRole()) {
+            roles.add(resource.getRole());
+        }
+        roles.remove(Constants.ANY_ROLE); // Omit the "*" role if present
+        return roles;
+    }
+
+    private static Collection<Protos.Resource.ReservationInfo> getDynamicReservations(Protos.Resource resource) {
+        // Reservations can be stored in two places...
+        List<Protos.Resource.ReservationInfo> reservations = new ArrayList<>();
+        reservations.addAll(resource.getReservationsList());
+        if (resource.hasReservation()) {
+            reservations.add(resource.getReservation());
+        }
+        return reservations.stream()
+                .filter(r -> r.hasType() && r.getType().equals(Protos.Resource.ReservationInfo.Type.DYNAMIC))
+                .collect(Collectors.toList());
+    }
+
     private static boolean isMountVolume(Protos.Resource resource) {
         return resource.hasDisk()
                 && resource.getDisk().hasSource()

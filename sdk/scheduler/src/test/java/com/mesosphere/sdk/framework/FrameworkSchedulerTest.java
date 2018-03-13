@@ -1,6 +1,7 @@
 package com.mesosphere.sdk.framework;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,13 +20,15 @@ import com.mesosphere.sdk.scheduler.MesosEventClient;
 import com.mesosphere.sdk.scheduler.MesosEventClient.StatusResponse;
 import com.mesosphere.sdk.state.FrameworkStore;
 import com.mesosphere.sdk.storage.PersisterException;
+import com.mesosphere.sdk.testutils.DefaultCapabilitiesTestSuite;
+import com.mesosphere.sdk.testutils.ResourceTestUtils;
 import com.mesosphere.sdk.testutils.TestConstants;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
-public class FrameworkSchedulerTest {
+public class FrameworkSchedulerTest extends DefaultCapabilitiesTestSuite {
 
     private static final Protos.Filters SHORT_INTERVAL = Protos.Filters.newBuilder()
             .setRefuseSeconds(Constants.SHORT_DECLINE_SECONDS)
@@ -48,7 +51,11 @@ public class FrameworkSchedulerTest {
     public void beforeEach() {
         MockitoAnnotations.initMocks(this);
         scheduler = new FrameworkScheduler(
-                mockFrameworkStore, mockMesosEventClient, mockOfferProcessor, mockImplicitReconciler)
+                Collections.singleton(TestConstants.ROLE),
+                mockFrameworkStore,
+                mockMesosEventClient,
+                mockOfferProcessor,
+                mockImplicitReconciler)
                 .disableThreading();
     }
 
@@ -94,6 +101,23 @@ public class FrameworkSchedulerTest {
         Protos.Offer offer = getOffer();
         scheduler.offerRescinded(mockSchedulerDriver, offer.getId());
         verify(mockOfferProcessor).dequeue(offer.getId());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testFilteredResources() {
+        scheduler.setReadyToAcceptOffers();
+
+        String resourceId = "unexpected-volume-id-1";
+        Protos.Resource resourceMatchingRole = ResourceTestUtils.getReservedRootVolume(1000.0, resourceId, resourceId);
+        Protos.Resource resourceOtherRole = resourceMatchingRole.toBuilder().setRole("other-role").build();
+
+        Protos.Offer offer = getOffer("foo").toBuilder().addResources(resourceMatchingRole).addResources(resourceOtherRole).build();
+        Protos.Offer filteredOffer = getOffer("foo").toBuilder().addResources(resourceMatchingRole).build();
+
+        // Resource with other role should be filtered out:
+        scheduler.resourceOffers(mockSchedulerDriver, Collections.singletonList(offer));
+        verify(mockOfferProcessor).enqueue(Collections.singletonList(filteredOffer));
     }
 
     @Test
