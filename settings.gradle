@@ -27,8 +27,8 @@ project(":frameworks/hdfs").name = "hdfs"
 include 'frameworks/template'
 project(":frameworks/template").name = "template"
 
-include 'frameworks/queues'
-project(":frameworks/queues").name = "queues"
+include 'frameworks/queue'
+project(":frameworks/queue").name = "queue"
 
 include 'frameworks/cassandra'
 project(":frameworks/cassandra").name = "cassandra"
