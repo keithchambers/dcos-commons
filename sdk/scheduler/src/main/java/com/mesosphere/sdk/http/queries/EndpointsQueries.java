@@ -47,11 +47,11 @@ public class EndpointsQueries {
      * Produces a listing of all endpoint names.
      */
     public static Response getEndpoints(
-            StateStore stateStore, String serviceName, Map<String, EndpointProducer> customEndpoints) {
+            StateStore stateStore, String frameworkName, Map<String, EndpointProducer> customEndpoints) {
         try {
             Set<String> endpoints = new TreeSet<>();
             endpoints.addAll(customEndpoints.keySet());
-            endpoints.addAll(getDiscoveryEndpoints(stateStore, serviceName).keySet());
+            endpoints.addAll(getDiscoveryEndpoints(stateStore, frameworkName).keySet());
             return jsonOkResponse(new JSONArray(endpoints));
         } catch (Exception ex) {
             LOGGER.error("Failed to fetch list of endpoints", ex);
@@ -66,7 +66,7 @@ public class EndpointsQueries {
      */
     public static Response getEndpoint(
             StateStore stateStore,
-            String serviceName,
+            String frameworkName,
             Map<String, EndpointProducer> customEndpoints,
             String endpointName) {
         try {
@@ -78,7 +78,7 @@ public class EndpointsQueries {
             }
 
             // Fall back to checking default values:
-            JSONObject endpoint = getDiscoveryEndpoints(stateStore, serviceName).get(endpointName);
+            JSONObject endpoint = getDiscoveryEndpoints(stateStore, frameworkName).get(endpointName);
             if (endpoint != null) {
                 return jsonOkResponse(endpoint);
             }
@@ -93,7 +93,7 @@ public class EndpointsQueries {
     /**
      * Returns a mapping of endpoint type to host:port (or ip:port) endpoints, endpoint type.
      */
-    private static Map<String, JSONObject> getDiscoveryEndpoints(StateStore stateStore, String serviceName)
+    private static Map<String, JSONObject> getDiscoveryEndpoints(StateStore stateStore, String frameworkName)
             throws TaskException {
         Map<String, JSONObject> endpointsByName = new TreeMap<>();
         for (TaskInfo taskInfo : stateStore.fetchTasks()) {
@@ -134,10 +134,10 @@ public class EndpointsQueries {
                 }
                 addPortToEndpoints(
                         endpointsByName,
-                        serviceName,
+                        frameworkName,
                         taskInfo.getName(),
                         port,
-                        EndpointUtils.toAutoIpEndpoint(serviceName, autoIpTaskName, port.getNumber()),
+                        EndpointUtils.toAutoIpEndpoint(frameworkName, autoIpTaskName, port.getNumber()),
                         EndpointUtils.toEndpoint(hostIpString, port.getNumber()));
             }
         }
@@ -174,7 +174,7 @@ public class EndpointsQueries {
      * the information will be added against the task type.
      *
      * @param endpointsByName the map to write to
-     * @param serviceName the name of the parent service
+     * @param frameworkName the name of the parent service
      * @param taskName the name of the task which has the port in question
      * @param taskInfoPort the port being added (from the task's DiscoveryInfo)
      * @param autoipHostPort the host:port value to advertise for connecting to the task over DNS
@@ -183,7 +183,7 @@ public class EndpointsQueries {
      */
     private static void addPortToEndpoints(
             Map<String, JSONObject> endpointsByName,
-            String serviceName,
+            String frameworkName,
             String taskName,
             Port taskInfoPort,
             String autoipHostPort,
@@ -205,7 +205,7 @@ public class EndpointsQueries {
                     taskInfoPort.getName(),
                     autoipHostPort,
                     ipHostPort,
-                    EndpointUtils.toVipEndpoint(serviceName, vip));
+                    EndpointUtils.toVipEndpoint(frameworkName, vip));
         }
 
         // If no VIPs were found, list the port against the port name:

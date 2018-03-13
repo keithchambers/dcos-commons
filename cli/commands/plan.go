@@ -48,7 +48,7 @@ func (cmd *planHandler) handleStop(a *kingpin.Application, e *kingpin.ParseEleme
 
 // HandlePlanSection adds a plan section to the passed in kingpin.Application
 func HandlePlanSection(app *kingpin.Application, q *queries.Plan) {
-	HandlePlanCommands(app.Command("plan", "Query service plans"), q)
+	HandlePlanCommands(app.Command("plan", "Query service plans").Alias("plans"), q)
 }
 
 // HandlePlanCommands adds plan subcommands to the passed in kingpin.CmdClause

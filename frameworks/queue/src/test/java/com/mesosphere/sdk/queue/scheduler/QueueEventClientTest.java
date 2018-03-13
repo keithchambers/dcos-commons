@@ -21,6 +21,7 @@ import com.mesosphere.sdk.scheduler.MesosEventClient.OfferResponse;
 import com.mesosphere.sdk.scheduler.MesosEventClient.StatusResponse;
 import com.mesosphere.sdk.scheduler.SchedulerConfig;
 import com.mesosphere.sdk.specification.ServiceSpec;
+import com.mesosphere.sdk.testutils.TestConstants;
 
 import static org.mockito.Mockito.*;
 
@@ -355,6 +356,7 @@ public class QueueEventClientTest {
 
     private QueueEventClient buildClient() {
         return new QueueEventClient(
+                TestConstants.SERVICE_NAME,
                 mockSchedulerConfig,
                 mockSpecStore,
                 mockRunManager,

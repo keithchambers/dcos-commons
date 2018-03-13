@@ -15,6 +15,7 @@ import org.apache.mesos.SchedulerDriver;
 
 import com.mesosphere.sdk.dcos.clients.SecretsClient;
 import com.mesosphere.sdk.framework.Driver;
+import com.mesosphere.sdk.http.types.EndpointProducer;
 import com.mesosphere.sdk.scheduler.plan.PlanCoordinator;
 import com.mesosphere.sdk.scheduler.plan.Step;
 import com.mesosphere.sdk.specification.ServiceSpec;
@@ -104,6 +105,11 @@ public class AbstractSchedulerTest {
         @Override
         public PlanCoordinator getPlanCoordinator() {
             return mockPlanCoordinator;
+        }
+
+        @Override
+        public Map<String, EndpointProducer> getCustomEndpoints() {
+            return Collections.emptyMap();
         }
 
         @Override

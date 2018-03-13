@@ -1,0 +1,10 @@
+name: bar
+pods:
+  node:
+    count: 2
+    tasks:
+      task:
+        goal: RUNNING
+        cmd: "echo this is bar >> output && sleep 1000"
+        cpus: 0.1
+        memory: 252

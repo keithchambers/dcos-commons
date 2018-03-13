@@ -28,11 +28,11 @@ func (cmd *debugConfigHandler) handleDebugConfigTargetID(a *kingpin.Application,
 	return cmd.q.TargetID()
 }
 
-func HandleDebugConfigCommands(debug *kingpin.CmdClause, q *queries.Config) {
+func HandleDebugConfigSection(debug *kingpin.CmdClause, q *queries.Config) {
 	// debug config <list, show, target, target_id>
 	cmd := &debugConfigHandler{q: q}
 
-	config := debug.Command("config", "View persisted configurations")
+	config := debug.Command("config", "View persisted configurations").Alias("configs")
 
 	config.Command("list", "List IDs of all available configurations").Action(cmd.handleDebugConfigList)
 
@@ -60,11 +60,11 @@ func (cmd *debugPodHandler) handleResume(a *kingpin.Application, e *kingpin.Pars
 	return cmd.q.Command("resume", cmd.podName, cmd.taskNames)
 }
 
-func HandleDebugPodCommands(debug *kingpin.CmdClause, q *queries.Pod) {
+func HandleDebugPodSection(debug *kingpin.CmdClause, q *queries.Pod) {
 	// debug pod <pause, resume>
 	cmd := &debugPodHandler{q: q}
 
-	pod := debug.Command("pod", "Debug pods")
+	pod := debug.Command("pod", "Debug pods").Alias("pods")
 
 	pause := pod.Command("pause", "Pauses a pod's tasks for debugging").Action(cmd.handlePause)
 	pause.Arg("pod", "Name of the pod instance to pause").Required().StringVar(&cmd.podName)
@@ -96,7 +96,7 @@ func (cmd *debugStateHandler) handleConfigStateRefreshCache(a *kingpin.Applicati
 	return cmd.q.RefreshCache()
 }
 
-func HandleDebugStateCommands(debug *kingpin.CmdClause, q *queries.State) {
+func HandleDebugStateSection(debug *kingpin.CmdClause, q *queries.State) {
 	// debug state <framework_id, status, task, tasks>
 	cmd := &debugStateHandler{q: q}
 
@@ -119,7 +119,7 @@ func HandleDebugSection(app *kingpin.Application, cq *queries.Config, pq *querie
 
 // HandleDebugCommands adds debug subcommands to the provided kingpin.CmdClause.
 func HandleDebugCommands(debug *kingpin.CmdClause, cq *queries.Config, pq *queries.Pod, sq *queries.State) {
-	HandleDebugConfigCommands(debug, cq)
-	HandleDebugPodCommands(debug, pq)
-	HandleDebugStateCommands(debug, sq)
+	HandleDebugConfigSection(debug, cq)
+	HandleDebugPodSection(debug, pq)
+	HandleDebugStateSection(debug, sq)
 }

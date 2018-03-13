@@ -151,6 +151,11 @@ public class DefaultScheduler extends AbstractScheduler {
     }
 
     @Override
+    public Map<String, EndpointProducer> getCustomEndpoints() {
+        return customEndpointProducers;
+    }
+
+    @Override
     public ConfigStore<ServiceSpec> getConfigStore() {
         return configStore;
     }

@@ -1,7 +1,10 @@
 package com.mesosphere.sdk.queue.http.types;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
+import com.mesosphere.sdk.http.types.EndpointProducer;
 import com.mesosphere.sdk.queue.scheduler.ActiveRunSet;
 import com.mesosphere.sdk.scheduler.AbstractScheduler;
 import com.mesosphere.sdk.scheduler.plan.PlanCoordinator;
@@ -42,5 +45,14 @@ public class RunInfoProvider {
     public Optional<PlanCoordinator> getPlanCoordinator(String runName) {
         Optional<AbstractScheduler> scheduler = store.getRun(runName);
         return scheduler.isPresent() ? Optional.of(scheduler.get().getPlanCoordinator()) : Optional.empty();
+    }
+
+    /**
+     * Returns a list of custom endpoints to advertise for the specified run, or an empty Map if the run was not found
+     * or there were no custom endpoints.
+     */
+    public Map<String, EndpointProducer> getCustomEndpoints(String runName) {
+        Optional<AbstractScheduler> scheduler = store.getRun(runName);
+        return scheduler.isPresent() ? scheduler.get().getCustomEndpoints() : Collections.emptyMap();
     }
 }

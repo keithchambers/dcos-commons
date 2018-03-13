@@ -1,0 +1,10 @@
+name: foo
+pods:
+  node:
+    count: 2
+    tasks:
+      task:
+        goal: RUNNING
+        cmd: "echo this is foo >> output && sleep 1000"
+        cpus: 0.1
+        memory: 252

@@ -58,6 +58,7 @@ public class QueueEventClient implements MesosEventClient {
 
     private static final Logger LOGGER = LoggingUtils.getLogger(QueueEventClient.class);
 
+    private final String frameworkName;
     private final SpecStore specStore;
     private final DefaultRunManager runManager;
     private final Map<String, Generator> runGenerators;
@@ -67,12 +68,14 @@ public class QueueEventClient implements MesosEventClient {
     private final Optional<Plan> uninstallPlan;
 
     public QueueEventClient(
+            String frameworkName,
             SchedulerConfig schedulerConfig,
             SpecStore specStore,
             DefaultRunManager runManager,
             Map<String, Generator> runGenerators,
             Optional<String> defaultSpecType,
             UninstallCallback uninstallCallback) {
+        this.frameworkName = frameworkName;
         this.specStore = specStore;
         this.runManager = runManager;
         this.runGenerators = runGenerators;
@@ -388,6 +391,7 @@ public class QueueEventClient implements MesosEventClient {
                 new RunsResource(specStore, runManager, runGenerators, defaultSpecType),
                 new RunArtifactResource(runInfoProvider),
                 new RunConfigResource(runInfoProvider),
+                new RunEndpointsResource(frameworkName, runInfoProvider),
                 new RunPlansResource(runInfoProvider),
                 new RunPodResource(runInfoProvider),
                 new RunStateResource(runInfoProvider, new StringPropertyDeserializer()));

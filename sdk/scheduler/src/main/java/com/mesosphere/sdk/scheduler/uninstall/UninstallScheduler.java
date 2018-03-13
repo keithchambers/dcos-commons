@@ -5,6 +5,7 @@ import com.mesosphere.sdk.dcos.clients.SecretsClient;
 import com.mesosphere.sdk.http.endpoints.DeprecatedPlanResource;
 import com.mesosphere.sdk.http.endpoints.HealthResource;
 import com.mesosphere.sdk.http.endpoints.PlansResource;
+import com.mesosphere.sdk.http.types.EndpointProducer;
 import com.mesosphere.sdk.http.types.PlanInfo;
 import com.mesosphere.sdk.offer.*;
 import com.mesosphere.sdk.scheduler.AbstractScheduler;
@@ -103,6 +104,11 @@ public class UninstallScheduler extends AbstractScheduler {
                 return Collections.singletonList(uninstallPlanManager);
             }
         };
+    }
+
+    @Override
+    public Map<String, EndpointProducer> getCustomEndpoints() {
+        return Collections.emptyMap();
     }
 
     @Override

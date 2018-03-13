@@ -33,7 +33,7 @@ func (cmd *podHandler) handleReplace(a *kingpin.Application, e *kingpin.ParseEle
 
 // HandlePodSection adds a pod section to the provided kingpin.Application.
 func HandlePodSection(app *kingpin.Application, q *queries.Pod) {
-	HandlePodCommands(app.Command("pod", "View Pod/Task state"), q)
+	HandlePodCommands(app.Command("pod", "View Pod/Task state").Alias("pods"), q)
 }
 
 // HandlePodCommands adds pod subcommands to the provided kingpin.CmdClause.

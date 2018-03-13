@@ -80,6 +80,7 @@ public class Main {
 
         // Client which will receive events from mesos and forward them to active Runs
         QueueEventClient client = new QueueEventClient(
+                frameworkConfig.getFrameworkName(),
                 schedulerConfig,
                 specStore,
                 runManager,

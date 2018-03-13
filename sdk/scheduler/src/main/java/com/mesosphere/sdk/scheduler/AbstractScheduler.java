@@ -3,6 +3,7 @@ package com.mesosphere.sdk.scheduler;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.TextFormat;
 import com.mesosphere.sdk.framework.ReviveManager;
+import com.mesosphere.sdk.http.types.EndpointProducer;
 import com.mesosphere.sdk.offer.LoggingUtils;
 import com.mesosphere.sdk.scheduler.plan.*;
 import com.mesosphere.sdk.scheduler.uninstall.UninstallScheduler;
@@ -178,6 +179,11 @@ public abstract class AbstractScheduler implements MesosEventClient {
      * Returns the {@link PlanCoordinator}.
      */
     public abstract PlanCoordinator getPlanCoordinator();
+
+    /**
+     * Returns the custom endpoints, or an empty map if there are none.
+     */
+    public abstract Map<String, EndpointProducer> getCustomEndpoints();
 
     /**
      * Returns the {@link ConfigStore}.

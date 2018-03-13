@@ -23,7 +23,7 @@ func (r *runFlag) getPrefix() string {
 	if len(r.name) == 0 {
 		// Give better info than the default error.
 		// Also, ensure that the arg can be visible to all 'run' commands, but is only 'required' for the ones that use it.
-		fmt.Printf("Missing required '--run' argument or 'RUN_NAME' envvar")
+		fmt.Printf("Missing required '--run' argument or 'RUN_NAME' envvar\n")
 		os.Exit(1)
 	}
 	return fmt.Sprintf("v1/run/%s/", r.name)
@@ -70,10 +70,10 @@ func main() {
 	endpoints := run.Command("endpoints", "View client endpoints").Alias("endpoint")
 	commands.HandleEndpointsCommands(endpoints, endpointsQueries)
 
-	plan := run.Command("plan", "Query service plans")
+	plan := run.Command("plan", "Query service plans").Alias("plans")
 	commands.HandlePlanCommands(plan, planQueries)
 
-	pod := run.Command("pod", "View Pod/Task state")
+	pod := run.Command("pod", "View Pod/Task state").Alias("pods")
 	commands.HandlePodCommands(pod, podQueries)
 
 	// Commands supported by the queue itself:
@@ -146,7 +146,7 @@ func (cmd *runHandler) delete(a *kingpin.Application, e *kingpin.ParseElement, c
 	if err != nil {
 		return err
 	}
-	client.PrintJSONBytes(responseBytes)
+	client.PrintResponseText(responseBytes)
 	return nil
 }
 
