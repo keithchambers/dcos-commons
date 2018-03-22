@@ -85,8 +85,6 @@ public class UninstallRecorder {
         }
 
         // Notify the resource steps in the uninstall plan about these resource ids.
-        // We need to manually pass this information to the resource cleanup steps. They do not get this information via
-        // DefaultPlanScheduler because that only handles deployment and therefore is not used by UninstallScheduler.
         resourceSteps.forEach(step -> step.updateResourceStatus(allResourceIds));
     }
 

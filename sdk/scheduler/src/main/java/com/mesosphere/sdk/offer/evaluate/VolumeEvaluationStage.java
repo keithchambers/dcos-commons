@@ -18,6 +18,7 @@ import static com.mesosphere.sdk.offer.evaluate.EvaluationOutcome.pass;
  * {@link com.mesosphere.sdk.offer.CreateOfferRecommendation} as necessary.
  */
 public class VolumeEvaluationStage implements OfferEvaluationStage {
+
     private final Logger logger;
     private final String serviceName;
     private final VolumeSpec volumeSpec;

@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
  * in reference to {@link PodInstanceRequirement}s.
  */
 public class OfferEvaluator {
+
     private final Logger logger;
     private final FrameworkStore frameworkStore;
     private final StateStore stateStore;
@@ -96,11 +97,11 @@ public class OfferEvaluator {
                     podInstanceRequirement,
                     serviceName,
                     getTargetConfig(podInstanceRequirement, thisPodTasks.values()),
+                    templateUrlFactory,
                     schedulerConfig,
                     thisPodTasks.values(),
                     frameworkStore.fetchFrameworkId().get(),
                     useDefaultExecutor,
-                    templateUrlFactory,
                     overrideMap);
             List<EvaluationOutcome> outcomes = new ArrayList<>();
             int failedOutcomeCount = 0;

@@ -24,6 +24,7 @@ import java.util.stream.IntStream;
  * environments.
  */
 public class PortEvaluationStage implements OfferEvaluationStage {
+
     private final Logger logger;
     private final String serviceName;
     private final PortSpec portSpec;

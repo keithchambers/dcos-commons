@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * The Reconciler synchronizes the Framework's task state with what Mesos reports, with Mesos as source of truth.
  */
 public class Reconciler {
+
     // Exponential backoff between explicit reconcile requests: minimum 8s, maximum 30s
     private static final int MULTIPLIER = 2;
     private static final long BASE_BACKOFF_MS = 4000;

@@ -9,6 +9,7 @@ import com.mesosphere.sdk.scheduler.plan.Plan;
 import com.mesosphere.sdk.specification.DefaultPodSpec;
 import com.mesosphere.sdk.specification.DefaultServiceSpec;
 import com.mesosphere.sdk.specification.PodSpec;
+import com.mesosphere.sdk.specification.ServiceSpec;
 import com.mesosphere.sdk.storage.MemPersister;
 import com.mesosphere.sdk.storage.Persister;
 import com.mesosphere.sdk.testutils.SchedulerConfigTestUtils;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * This class tests the {@link SchedulerBuilder}.
@@ -108,6 +110,37 @@ public class SchedulerBuilderTest {
                 .findFirst().get();
 
         Assert.assertEquals(2, deployPlan.getChildren().size());
+    }
+
+    @Test
+    public void doNotConstrainToRegionWhenNotSupported() throws Exception {
+        Capabilities capabilities = mock(Capabilities.class);
+        when(capabilities.supportsDomains()).thenReturn(false);
+        Capabilities.overrideCapabilities(capabilities);
+
+        ServiceSpec serviceSpec = DefaultServiceSpec.newBuilder()
+                .name(TestConstants.SERVICE_NAME)
+                .role(TestConstants.ROLE)
+                .principal(TestConstants.PRINCIPAL)
+                .zookeeperConnection("badhost-shouldbeignored:2181")
+                .pods(Arrays.asList(getPodSpec()))
+                .user(TestConstants.SERVICE_USER)
+                .build();
+
+        SchedulerBuilder builder = DefaultScheduler.newBuilder(
+                serviceSpec, SchedulerConfigTestUtils.getTestSchedulerConfig(), new MemPersister());
+        Optional<PlacementRule> placementRule = builder.getServiceSpec().getPods().get(0).getPlacementRule();
+
+        assert !placementRule.isPresent();
+    }
+
+    @Test
+    public void constrainToSingleRegion() {
+        PlacementRule placementRule = SchedulerBuilder.getRegionRule(Optional.empty());
+        Assert.assertTrue(placementRule instanceof IsLocalRegionRule);
+
+        placementRule = SchedulerBuilder.getRegionRule(Optional.of("USA"));
+        Assert.assertTrue(placementRule instanceof RegionRule);
     }
 
     private PlacementRule getRemoteRegionRule() {

@@ -1,8 +1,8 @@
 package com.mesosphere.sdk.scheduler.plan;
 
+import com.mesosphere.sdk.offer.LoggingUtils;
 import com.mesosphere.sdk.offer.TaskUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class PlanUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PlanUtils.class);
+    private static final Logger LOGGER = LoggingUtils.getLogger(PlanUtils.class);
 
     private PlanUtils() {
         // do not instantiate

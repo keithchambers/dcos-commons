@@ -48,6 +48,15 @@ public class Main {
                         schedulerConfig,
                         yamlSpecFile.getParentFile());
                 break;
+            case MULTI_REGION:
+                yamlSpecFile = new File(args[0]);
+                serviceSpec = DefaultServiceSpec
+                        .newGenerator(yamlSpecFile, SchedulerConfig.fromEnv())
+                        .build();
+                builder = DefaultScheduler.newBuilder(serviceSpec, SchedulerConfig.fromEnv())
+                        .withSingleRegionConstraint();
+                runner = SchedulerRunner.fromSchedulerBuilder(builder);
+                break;
             case CUSTOM_PLAN:
                 yamlSpecFile = new File(args[0]);
                 serviceSpec = DefaultServiceSpec
@@ -77,7 +86,8 @@ public class Main {
         YAML,
         Java,
         CUSTOM_PLAN,
-        CUSTOM_DECOMMISSION
+        CUSTOM_DECOMMISSION,
+        MULTI_REGION
     }
 
     private static final String SCENARIO_KEY = "SCENARIO";
@@ -85,6 +95,8 @@ public class Main {
     private static final String JAVA_FLAG = "JAVA";
     private static final String CUSTOM_PLAN_FLAG = "CUSTOM_PLAN";
     private static final String CUSTOM_DECOMISSION_FLAG = "CUSTOM_DECOMMISSION";
+    private static final String MULTI_REGION_FLAG = "MULTI_REGION";
+
 
     private static Scenario getScenario() {
         String flag = System.getenv().get(SCENARIO_KEY);
@@ -96,6 +108,8 @@ public class Main {
                 return Scenario.CUSTOM_PLAN;
             case CUSTOM_DECOMISSION_FLAG:
                 return Scenario.CUSTOM_DECOMMISSION;
+            case MULTI_REGION_FLAG:
+                return Scenario.MULTI_REGION;
             case YAML_FLAG:
             default:
                 return Scenario.YAML;

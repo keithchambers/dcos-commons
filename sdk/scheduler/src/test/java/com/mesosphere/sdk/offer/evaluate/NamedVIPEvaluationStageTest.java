@@ -241,11 +241,11 @@ public class NamedVIPEvaluationStageTest extends DefaultCapabilitiesTestSuite {
                 getPodInstanceRequirement(taskPort, networks),
                 TestConstants.SERVICE_NAME,
                 UUID.randomUUID(),
+                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                 SchedulerConfigTestUtils.getTestSchedulerConfig(),
                 taskInfos,
                 TestConstants.FRAMEWORK_ID,
                 true,
-                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                 Collections.emptyMap());
     }
 

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * Operations.
  */
 public class OfferAccepter {
+
     /**
      * Tell Mesos to consider unused resources as refused for 1 second.
      */

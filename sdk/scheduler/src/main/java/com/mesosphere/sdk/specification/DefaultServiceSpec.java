@@ -17,6 +17,7 @@ import com.mesosphere.sdk.config.SerializationUtils;
 import com.mesosphere.sdk.config.TaskEnvRouter;
 import com.mesosphere.sdk.dcos.DcosConstants;
 import com.mesosphere.sdk.framework.FrameworkConfig;
+import com.mesosphere.sdk.offer.LoggingUtils;
 import com.mesosphere.sdk.offer.evaluate.placement.*;
 import com.mesosphere.sdk.scheduler.SchedulerConfig;
 import com.mesosphere.sdk.specification.validation.UniquePodType;
@@ -29,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  */
 public class DefaultServiceSpec implements ServiceSpec {
     private static final Comparator COMPARATOR = new Comparator();
-    private static final Logger logger = LoggerFactory.getLogger(DefaultServiceSpec.class);
+    private static final Logger LOGGER = LoggingUtils.getLogger(DefaultServiceSpec.class);
 
     @NotNull(message = "Service name cannot be empty")
     @Size(min = 1, message = "Service name cannot be empty")
@@ -69,6 +69,8 @@ public class DefaultServiceSpec implements ServiceSpec {
     @Valid
     private final ReplacementFailurePolicy replacementFailurePolicy;
 
+    private final String region;
+
     @JsonCreator
     public DefaultServiceSpec(
             @JsonProperty("name") String name,
@@ -76,6 +78,7 @@ public class DefaultServiceSpec implements ServiceSpec {
             @JsonProperty("principal") String principal,
             @JsonProperty("user") String user,
             @JsonProperty("goal") GoalState goalState,
+            @JsonProperty("region") String region,
             @JsonProperty("web-url") String webUrl,
             @JsonProperty("zookeeper") String zookeeperConnection,
             @JsonProperty("replacement-failure-policy") ReplacementFailurePolicy replacementFailurePolicy,
@@ -88,6 +91,7 @@ public class DefaultServiceSpec implements ServiceSpec {
         if (goalState == GoalState.FINISHED) {
             throw new IllegalArgumentException("Service goal state is deprecated FINISHED. Did you mean FINISH?");
         }
+        this.region = region;
         this.webUrl = webUrl;
         // If no zookeeperConnection string is configured, fallback to the default value.
         this.zookeeperConnection = StringUtils.isBlank(zookeeperConnection)
@@ -124,6 +128,7 @@ public class DefaultServiceSpec implements ServiceSpec {
                 builder.principal,
                 builder.user,
                 builder.goalState,
+                builder.region,
                 builder.webUrl,
                 builder.zookeeperConnection,
                 builder.replacementFailurePolicy,
@@ -180,6 +185,7 @@ public class DefaultServiceSpec implements ServiceSpec {
         builder.principal = copy.getPrincipal();
         builder.user = copy.getUser();
         builder.goalState = copy.getGoal();
+        builder.region = copy.getRegion().orElse(null);
         builder.zookeeperConnection = copy.getZookeeperConnection();
         builder.webUrl = copy.getWebUrl();
         builder.pods = copy.getPods();
@@ -230,6 +236,11 @@ public class DefaultServiceSpec implements ServiceSpec {
     @Override
     public List<PodSpec> getPods() {
         return pods;
+    }
+
+    @Override
+    public Optional<String> getRegion() {
+        return Optional.ofNullable(region);
     }
 
     @Override
@@ -310,8 +321,8 @@ public class DefaultServiceSpec implements ServiceSpec {
             // Serialize and then deserialize:
             loopbackSpecification = factory.parse(serviceSpecBytes);
         } catch (Exception e) {
-            logger.error("Failed to parse JSON for loopback validation", e);
-            logger.error("JSON to be parsed was:\n{}", new String(serviceSpecBytes, StandardCharsets.UTF_8));
+            LOGGER.error("Failed to parse JSON for loopback validation", e);
+            LOGGER.error("JSON to be parsed was:\n{}", new String(serviceSpecBytes, StandardCharsets.UTF_8));
             throw new IllegalArgumentException("Failed to parse JSON for loopback validation", e);
         }
         // Verify that equality works:
@@ -469,7 +480,7 @@ public class DefaultServiceSpec implements ServiceSpec {
                 } else if (value.equals("RUNNING")) {
                     return GoalState.RUNNING;
                 } else {
-                    logger.warn("Found unknown goal state in config store: {}", value);
+                    LOGGER.warn("Found unknown goal state in config store: {}", value);
                     return GoalState.UNKNOWN;
                 }
             }
@@ -559,6 +570,7 @@ public class DefaultServiceSpec implements ServiceSpec {
         private String principal;
         private String user;
         private GoalState goalState;
+        private String region;
         private String webUrl;
         private String zookeeperConnection;
         private ReplacementFailurePolicy replacementFailurePolicy;
@@ -634,6 +646,18 @@ public class DefaultServiceSpec implements ServiceSpec {
          */
         public Builder webUrl(String webUrl) {
             this.webUrl = webUrl;
+            return this;
+        }
+
+        /**
+         * Sets the {@code region} and returns a reference to this Builder so that the methods can be chained
+         * together.
+         *
+         * @param region the {@code region} to set
+         * @return a reference to this Builder
+         */
+        public Builder region(String region) {
+            this.region = region;
             return this;
         }
 

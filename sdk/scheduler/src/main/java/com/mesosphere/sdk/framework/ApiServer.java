@@ -2,6 +2,7 @@ package com.mesosphere.sdk.framework;
 
 import com.codahale.metrics.jetty9.InstrumentedHandler;
 import com.google.common.annotations.VisibleForTesting;
+import com.mesosphere.sdk.offer.LoggingUtils;
 import com.mesosphere.sdk.scheduler.Metrics;
 import com.mesosphere.sdk.scheduler.SchedulerConfig;
 import com.mesosphere.sdk.scheduler.SchedulerUtils;
@@ -17,7 +18,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -29,10 +29,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * The SchedulerApiServer runs the Jetty {@link Server} that exposes the Scheduler's API.
+ * The {@link ApiServer} runs the Jetty {@link Server} that exposes the Scheduler's API.
  */
 public class ApiServer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiServer.class);
+
+    private static final Logger LOGGER = LoggingUtils.getLogger(ApiServer.class);
 
     private final int port;
     private final Server server;

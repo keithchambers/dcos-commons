@@ -21,6 +21,7 @@ import com.mesosphere.sdk.specification.ServiceSpec;
 import com.mesosphere.sdk.state.*;
 import com.mesosphere.sdk.storage.Persister;
 import com.mesosphere.sdk.storage.PersisterException;
+
 import org.apache.mesos.Protos;
 import org.slf4j.Logger;
 

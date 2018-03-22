@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * of expected {@link ResourceSpec}s for that task.
  */
 class TaskResourceMapper {
+
     private final Logger logger;
     private final String serviceName;
     private final String taskSpecName;

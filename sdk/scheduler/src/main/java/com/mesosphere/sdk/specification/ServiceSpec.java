@@ -25,6 +25,9 @@ public interface ServiceSpec extends Configuration {
     @JsonProperty("goal")
     GoalState getGoal();
 
+    @JsonProperty("region")
+    Optional<String> getRegion();
+
     @JsonProperty("web-url")
     String getWebUrl();
 

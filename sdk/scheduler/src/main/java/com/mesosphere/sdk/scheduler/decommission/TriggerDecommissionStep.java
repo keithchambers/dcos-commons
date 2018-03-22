@@ -14,6 +14,7 @@ import java.util.Optional;
  * Step which marks a task as being decommissioned and kills it.
  */
 public class TriggerDecommissionStep extends UninstallStep {
+
     private final StateStore stateStore;
     private final Protos.TaskInfo taskInfo;
 

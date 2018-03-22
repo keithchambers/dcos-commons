@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.mesosphere.sdk.cassandra.api.SeedsResource;
 import com.mesosphere.sdk.config.validate.TaskEnvCannotChange;
 import com.mesosphere.sdk.scheduler.DefaultScheduler;
+import com.mesosphere.sdk.scheduler.EnvStore;
 import com.mesosphere.sdk.scheduler.SchedulerBuilder;
 import com.mesosphere.sdk.scheduler.SchedulerConfig;
 import com.mesosphere.sdk.scheduler.SchedulerRunner;
@@ -29,9 +30,12 @@ public class Main {
     }
 
     private static SchedulerBuilder createSchedulerBuilder(File yamlSpecFile) throws Exception {
-        SchedulerConfig schedulerConfig = SchedulerConfig.fromEnv();
+        Map<String, String> env = new HashMap<>(System.getenv());
+        env.put("ALLOW_REGION_AWARENESS", "true");
+        SchedulerConfig schedulerConfig = SchedulerConfig.fromEnvStore(EnvStore.fromMap(env));
         RawServiceSpec rawServiceSpec = RawServiceSpec.newBuilder(yamlSpecFile).build();
         List<String> localSeeds = CassandraSeedUtils.getLocalSeeds(rawServiceSpec.getName());
+
         return DefaultScheduler.newBuilder(
                 DefaultServiceSpec
                         .newGenerator(rawServiceSpec, schedulerConfig, yamlSpecFile.getParentFile())
@@ -46,7 +50,8 @@ public class Main {
                                 TaskEnvCannotChange.Rule.ALLOW_UNSET_TO_SET)))
                 .setPlansFrom(rawServiceSpec)
                 .setCustomResources(getResources(localSeeds))
-                .setRecoveryManagerFactory(new CassandraRecoveryPlanOverriderFactory());
+                .setRecoveryManagerFactory(new CassandraRecoveryPlanOverriderFactory())
+                .withSingleRegionConstraint();
     }
 
     private static Collection<Object> getResources(List<String> localSeeds) {

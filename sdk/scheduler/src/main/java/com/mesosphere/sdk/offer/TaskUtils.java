@@ -13,7 +13,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.mesos.Protos;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,7 +23,7 @@ import static com.mesosphere.sdk.offer.Constants.PORTS_RESOURCE_TYPE;
  * Various utility methods for manipulating data in {@link TaskInfo}s.
  */
 public class TaskUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskUtils.class);
+    private static final Logger LOGGER = LoggingUtils.getLogger(TaskUtils.class);
 
     private TaskUtils() {
         // do not instantiate

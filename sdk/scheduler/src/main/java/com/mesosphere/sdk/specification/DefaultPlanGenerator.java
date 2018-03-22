@@ -1,6 +1,7 @@
 package com.mesosphere.sdk.specification;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.mesosphere.sdk.offer.LoggingUtils;
 import com.mesosphere.sdk.scheduler.plan.*;
 import com.mesosphere.sdk.scheduler.plan.strategy.StrategyFactory;
 import com.mesosphere.sdk.specification.yaml.RawPhase;
@@ -10,7 +11,6 @@ import com.mesosphere.sdk.state.ConfigTargetStore;
 import com.mesosphere.sdk.state.StateStore;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Default implementation of {@link PlanGenerator}.
  */
 public class DefaultPlanGenerator implements PlanGenerator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPlanGenerator.class);
+    private static final Logger LOGGER = LoggingUtils.getLogger(DefaultPlanGenerator.class);
     private final StepFactory stepFactory;
 
     public DefaultPlanGenerator(ConfigTargetStore configTargetStore, StateStore stateStore) {

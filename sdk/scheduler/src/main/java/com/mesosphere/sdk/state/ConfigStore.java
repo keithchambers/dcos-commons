@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class ConfigStore<T extends Configuration> implements ConfigTargetStore {
 
-    private static final Logger logger = LoggingUtils.getLogger(ConfigStore.class);
+    private static final Logger LOGGER = LoggingUtils.getLogger(ConfigStore.class);
 
     private static final String TARGET_ID_PATH_NAME = "ConfigTarget";
     private static final String CONFIGURATIONS_PATH_NAME = "Configurations";
@@ -123,7 +123,7 @@ public class ConfigStore<T extends Configuration> implements ConfigTargetStore {
         }
 
         String path = getConfigPath(namespace, id);
-        logger.info("Fetching configuration with ID={} from {}", id, path);
+        LOGGER.info("Fetching configuration with ID={} from {}", id, path);
         byte[] data;
         try {
             data = persister.get(path);
@@ -156,7 +156,7 @@ public class ConfigStore<T extends Configuration> implements ConfigTargetStore {
         } catch (PersisterException e) {
             if (e.getReason() == Reason.NOT_FOUND) {
                 // Clearing a non-existent Configuration should not result in an exception.
-                logger.warn("Requested configuration '{}' to be deleted does not exist at path '{}'", id, path);
+                LOGGER.warn("Requested configuration '{}' to be deleted does not exist at path '{}'", id, path);
                 return;
             } else {
                 throw new ConfigStoreException(e, String.format(
@@ -188,7 +188,7 @@ public class ConfigStore<T extends Configuration> implements ConfigTargetStore {
         } catch (PersisterException e) {
             if (e.getReason() == Reason.NOT_FOUND) {
                 // Clearing a non-existent Configuration should not result in an exception.
-                logger.warn("Configuration list at path '{}' does not exist: returning empty list",
+                LOGGER.warn("Configuration list at path '{}' does not exist: returning empty list",
                         configurationsPath);
                 return new ArrayList<>();
             } else {

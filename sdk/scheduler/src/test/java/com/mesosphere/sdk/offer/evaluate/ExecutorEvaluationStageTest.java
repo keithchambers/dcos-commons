@@ -55,11 +55,11 @@ public class ExecutorEvaluationStageTest extends OfferEvaluatorTestBase {
                                 podInstanceRequirement,
                                 TestConstants.SERVICE_NAME,
                                 UUID.randomUUID(),
+                                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                                 SchedulerConfigTestUtils.getTestSchedulerConfig(),
                                 stateStore.fetchTasks(),
                                 frameworkStore.fetchFrameworkId().get(),
                                 true,
-                                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                                 Collections.emptyMap()));
         Assert.assertFalse(outcome.isPassing());
     }
@@ -99,11 +99,11 @@ public class ExecutorEvaluationStageTest extends OfferEvaluatorTestBase {
                                 podInstanceRequirement,
                                 TestConstants.SERVICE_NAME,
                                 UUID.randomUUID(),
+                                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                                 SchedulerConfigTestUtils.getTestSchedulerConfig(),
                                 stateStore.fetchTasks(),
                                 frameworkStore.fetchFrameworkId().get(),
                                 false,
-                                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                                 Collections.emptyMap()));
         Assert.assertFalse(outcome.isPassing());
     }
@@ -142,11 +142,11 @@ public class ExecutorEvaluationStageTest extends OfferEvaluatorTestBase {
                         podInstanceRequirement,
                         TestConstants.SERVICE_NAME,
                         UUID.randomUUID(),
+                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         SchedulerConfigTestUtils.getTestSchedulerConfig(),
                         stateStore.fetchTasks(),
                         frameworkStore.fetchFrameworkId().get(),
                         true,
-                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         Collections.emptyMap());
         EvaluationOutcome outcome =
                 executorEvaluationStage.evaluate(resources, podInfoBuilder);
@@ -191,11 +191,11 @@ public class ExecutorEvaluationStageTest extends OfferEvaluatorTestBase {
                         podInstanceRequirement,
                         TestConstants.SERVICE_NAME,
                         UUID.randomUUID(),
+                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         SchedulerConfigTestUtils.getTestSchedulerConfig(),
                         stateStore.fetchTasks(),
                         frameworkStore.fetchFrameworkId().get(),
                         false,
-                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         Collections.emptyMap());
         EvaluationOutcome outcome =
                 executorEvaluationStage.evaluate(resources, podInfoBuilder);
