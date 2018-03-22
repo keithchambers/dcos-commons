@@ -123,8 +123,8 @@ public class DefaultRecoveryPlanManagerTest extends DefaultCapabilitiesTestSuite
                         stateStore,
                         new OfferOutcomeTracker(),
                         serviceSpec.getName(),
-                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         configTarget,
+                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         SchedulerConfigTestUtils.getTestSchedulerConfig(),
                         true),
                 stateStore);

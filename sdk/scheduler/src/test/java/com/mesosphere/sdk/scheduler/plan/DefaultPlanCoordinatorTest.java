@@ -108,8 +108,8 @@ public class DefaultPlanCoordinatorTest extends DefaultCapabilitiesTestSuite {
                         stateStore,
                         new OfferOutcomeTracker(),
                         TestConstants.SERVICE_NAME,
-                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         UUID.randomUUID(),
+                        ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                         SchedulerConfigTestUtils.getTestSchedulerConfig(),
                         true),
                 stateStore);

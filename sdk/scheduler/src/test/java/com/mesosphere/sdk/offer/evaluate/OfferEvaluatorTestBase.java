@@ -48,8 +48,8 @@ public class OfferEvaluatorTestBase extends DefaultCapabilitiesTestSuite {
                 stateStore,
                 new OfferOutcomeTracker(),
                 TestConstants.SERVICE_NAME,
-                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                 targetConfig,
+                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                 SCHEDULER_CONFIG,
                 true);
     }
@@ -60,8 +60,8 @@ public class OfferEvaluatorTestBase extends DefaultCapabilitiesTestSuite {
                 stateStore,
                 new OfferOutcomeTracker(),
                 TestConstants.SERVICE_NAME,
-                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                 targetConfig,
+                ArtifactResource.getUrlFactory(TestConstants.SERVICE_NAME),
                 SCHEDULER_CONFIG,
                 false);
     }

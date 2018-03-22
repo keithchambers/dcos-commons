@@ -35,8 +35,8 @@ public class OfferEvaluator {
     private final StateStore stateStore;
     private final OfferOutcomeTracker offerOutcomeTracker;
     private final String serviceName;
-    private final ArtifactQueries.TemplateUrlFactory templateUrlFactory;
     private final UUID targetConfigId;
+    private final ArtifactQueries.TemplateUrlFactory templateUrlFactory;
     private final SchedulerConfig schedulerConfig;
     private final boolean useDefaultExecutor;
 
@@ -45,8 +45,8 @@ public class OfferEvaluator {
             StateStore stateStore,
             OfferOutcomeTracker offerOutcomeTracker,
             String serviceName,
-            ArtifactQueries.TemplateUrlFactory templateUrlFactory,
             UUID targetConfigId,
+            ArtifactQueries.TemplateUrlFactory templateUrlFactory,
             SchedulerConfig schedulerConfig,
             boolean useDefaultExecutor) {
         this.logger = LoggingUtils.getLogger(getClass(), serviceName);
@@ -54,8 +54,8 @@ public class OfferEvaluator {
         this.stateStore = stateStore;
         this.offerOutcomeTracker = offerOutcomeTracker;
         this.serviceName = serviceName;
-        this.templateUrlFactory = templateUrlFactory;
         this.targetConfigId = targetConfigId;
+        this.templateUrlFactory = templateUrlFactory;
         this.schedulerConfig = schedulerConfig;
         this.useDefaultExecutor = useDefaultExecutor;
     }

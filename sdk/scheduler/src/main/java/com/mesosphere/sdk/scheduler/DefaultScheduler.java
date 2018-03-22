@@ -121,8 +121,8 @@ public class DefaultScheduler extends AbstractScheduler {
                         stateStore,
                         offerOutcomeTracker,
                         serviceSpec.getName(),
-                        templateUrlFactory,
                         configStore.getTargetConfig(),
+                        templateUrlFactory,
                         schedulerConfig,
                         Capabilities.getInstance().supportsDefaultExecutor()),
                 stateStore);

@@ -24,9 +24,9 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.mesosphere.sdk.offer.Constants;
+import com.mesosphere.sdk.offer.LoggingUtils;
 import com.mesosphere.sdk.offer.ReserveOfferRecommendation;
 import com.mesosphere.sdk.scheduler.MesosEventClient;
 import com.mesosphere.sdk.scheduler.MesosEventClient.OfferResponse;
@@ -65,7 +65,7 @@ public class OfferProcessorTest {
         }
     };
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OfferProcessorTest.class);
+    private static final Logger LOGGER = LoggingUtils.getLogger(OfferProcessorTest.class);
     private static final int THREAD_COUNT = 50;
     private static final int OFFERS_PER_THREAD = 3;
 
